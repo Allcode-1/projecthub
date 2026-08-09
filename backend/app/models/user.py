@@ -1,18 +1,19 @@
 from __future__ import annotations
+
+from datetime import datetime
+from enum import Enum
 from typing import TYPE_CHECKING
 
-from enum import Enum
-from datetime import datetime
-
+from sqlalchemy import DateTime, String, func
+from sqlalchemy import Enum as SAEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, Enum as SAEnum, DateTime, func
 
 from app.db.session import Base
 
 if TYPE_CHECKING:
     from app.models.project import Project
-    from app.models.project_member import ProjectMember
     from app.models.project_invite import ProjectInvite
+    from app.models.project_member import ProjectMember
 
 
 class UserRole(str, Enum):
@@ -43,17 +44,17 @@ class User(Base):
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
 
-    project_members: Mapped[list["ProjectMember"]] = relationship(
+    project_members: Mapped[list[ProjectMember]] = relationship(
         back_populates="user", passive_deletes=True
     )
 
-    projects: Mapped[list["Project"]] = relationship(back_populates="owner")
+    projects: Mapped[list[Project]] = relationship(back_populates="owner")
 
-    sent_project_invites: Mapped[list["ProjectInvite"]] = relationship(
+    sent_project_invites: Mapped[list[ProjectInvite]] = relationship(
         back_populates="sender",
         foreign_keys="ProjectInvite.send_by",
     )
 
-    received_project_invites: Mapped[list["ProjectInvite"]] = relationship(
+    received_project_invites: Mapped[list[ProjectInvite]] = relationship(
         back_populates="recipient", foreign_keys="ProjectInvite.send_to"
     )

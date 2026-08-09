@@ -1,8 +1,8 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models.user import User
 from app.models.project_invite import ProjectInvite, ProjectInviteStatus
+from app.models.user import User
 
 
 def _apply_pagination(statement, limit: int | None, offset: int):
@@ -39,9 +39,7 @@ class ProjectInviteRepository:
 
     def lock_invite_by_id(self, invite_id: int) -> ProjectInvite | None:
         return self.db.scalar(
-            select(ProjectInvite)
-            .where(ProjectInvite.id == invite_id)
-            .with_for_update()
+            select(ProjectInvite).where(ProjectInvite.id == invite_id).with_for_update()
         )
 
     def invite_by_user_id(self, project_id, recipient_id) -> ProjectInvite | None:
@@ -77,6 +75,4 @@ class ProjectInviteRepository:
             .order_by(ProjectInvite.id)
         )
 
-        return self.db.scalars(
-            _apply_pagination(statement, limit, offset)
-        ).all()
+        return self.db.scalars(_apply_pagination(statement, limit, offset)).all()

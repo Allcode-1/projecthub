@@ -5,7 +5,6 @@ from uuid import uuid4
 
 import httpx
 
-
 DEFAULT_PASSWORD = "secret123"
 
 
@@ -126,7 +125,9 @@ async def _invite_and_accept(
     )
 
 
-def _assert_one_success(statuses: list[int], success_code: int, failure_code: int) -> None:
+def _assert_one_success(
+    statuses: list[int], success_code: int, failure_code: int
+) -> None:
     success_count = statuses.count(success_code)
     failure_count = statuses.count(failure_code)
 
@@ -232,7 +233,9 @@ async def run(base_url: str, contenders: int, timeout: float) -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run ProjectHub concurrency smoke tests.")
+    parser = argparse.ArgumentParser(
+        description="Run ProjectHub concurrency smoke tests."
+    )
     parser.add_argument("--base-url", default="http://localhost:8000")
     parser.add_argument("--contenders", type=int, default=3)
     parser.add_argument("--timeout", type=float, default=10.0)
@@ -247,4 +250,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

@@ -3,8 +3,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.core.errors import AppError
 from app.auth.dependencies import get_current_active_user
+from app.core.errors import AppError
 from app.db.session import get_db
 from app.dependencies.pagination import Pagination, get_pagination
 from app.dependencies.project import require_can_take_tasks
@@ -17,7 +17,6 @@ from app.repositories.review_comment import ReviewCommentRepository
 from app.repositories.task import TaskRepository
 from app.schemas.review_comments import ReviewCommentRead
 from app.services.review_comments import get_my_review_comments
-
 
 router = APIRouter()
 

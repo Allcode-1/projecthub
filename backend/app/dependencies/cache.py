@@ -3,10 +3,10 @@ from typing import Annotated
 from fastapi import Depends
 from redis import Redis
 
-from app.redis.client import get_redis
 from app.cache.base import RedisCache
 from app.cache.project import ProjectCache
 from app.cache.sprint import SprintCache
+from app.redis.client import get_redis
 
 RedisDep = Annotated[Redis, Depends(get_redis)]
 

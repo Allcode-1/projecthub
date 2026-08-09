@@ -181,9 +181,7 @@ class TaskRepository:
             .order_by(Task.id)
         )
 
-        return list(
-            self.db.scalars(_apply_pagination(statement, limit, offset)).all()
-        )
+        return list(self.db.scalars(_apply_pagination(statement, limit, offset)).all())
 
     def tasks_todo(
         self,
@@ -202,9 +200,7 @@ class TaskRepository:
             .order_by(Task.id)
         )
 
-        return list(
-            self.db.scalars(_apply_pagination(statement, limit, offset)).all()
-        )
+        return list(self.db.scalars(_apply_pagination(statement, limit, offset)).all())
 
     def tasks_in_progress(
         self,
@@ -223,9 +219,7 @@ class TaskRepository:
             .order_by(Task.id)
         )
 
-        return list(
-            self.db.scalars(_apply_pagination(statement, limit, offset)).all()
-        )
+        return list(self.db.scalars(_apply_pagination(statement, limit, offset)).all())
 
     def tasks_on_review(
         self,
@@ -244,9 +238,7 @@ class TaskRepository:
             .order_by(Task.id)
         )
 
-        return list(
-            self.db.scalars(_apply_pagination(statement, limit, offset)).all()
-        )
+        return list(self.db.scalars(_apply_pagination(statement, limit, offset)).all())
 
     def tasks_rejected(
         self,
@@ -265,9 +257,7 @@ class TaskRepository:
             .order_by(Task.id)
         )
 
-        return list(
-            self.db.scalars(_apply_pagination(statement, limit, offset)).all()
-        )
+        return list(self.db.scalars(_apply_pagination(statement, limit, offset)).all())
 
     def tasks_done(
         self,
@@ -286,9 +276,7 @@ class TaskRepository:
             .order_by(Task.id)
         )
 
-        return list(
-            self.db.scalars(_apply_pagination(statement, limit, offset)).all()
-        )
+        return list(self.db.scalars(_apply_pagination(statement, limit, offset)).all())
 
     def tasks_created_by_user(
         self,
@@ -308,9 +296,7 @@ class TaskRepository:
             .order_by(Task.id)
         )
 
-        return list(
-            self.db.scalars(_apply_pagination(statement, limit, offset)).all()
-        )
+        return list(self.db.scalars(_apply_pagination(statement, limit, offset)).all())
 
     def tasks_assigned_to_user(
         self,
@@ -330,9 +316,7 @@ class TaskRepository:
             .order_by(Task.id)
         )
 
-        return list(
-            self.db.scalars(_apply_pagination(statement, limit, offset)).all()
-        )
+        return list(self.db.scalars(_apply_pagination(statement, limit, offset)).all())
 
     def rejected_tasks_assigned_to_user(
         self,
@@ -353,6 +337,4 @@ class TaskRepository:
             .order_by(Task.id)
         )
 
-        return list(
-            self.db.scalars(_apply_pagination(statement, limit, offset)).all()
-        )
+        return list(self.db.scalars(_apply_pagination(statement, limit, offset)).all())

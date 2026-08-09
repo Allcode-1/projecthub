@@ -1,16 +1,18 @@
-from enum import Enum
 from datetime import datetime
+from enum import Enum
 
-from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import (
     CheckConstraint,
-    String,
     DateTime,
-    Enum as SAEnum,
     ForeignKey,
     Index,
+    String,
     func,
 )
+from sqlalchemy import (
+    Enum as SAEnum,
+)
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.session import Base
 

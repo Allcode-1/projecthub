@@ -4,7 +4,6 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-
 from app.repositories.project_invite import ProjectInviteRepository
 
 DbSession = Annotated[Session, Depends(get_db)]

@@ -5,7 +5,6 @@ from uuid import uuid4
 
 import httpx
 
-
 DEFAULT_PASSWORD = "secret123"
 
 
@@ -101,9 +100,7 @@ async def run(
             async with semaphore:
                 return await _timed_get_projects(client, token)
 
-        results = await asyncio.gather(
-            *[bounded_request() for _ in range(requests)]
-        )
+        results = await asyncio.gather(*[bounded_request() for _ in range(requests)])
 
     statuses = [status for status, _elapsed in results]
     durations = [elapsed for _status, elapsed in results]

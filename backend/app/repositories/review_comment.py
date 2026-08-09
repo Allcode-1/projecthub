@@ -55,11 +55,7 @@ class ReviewCommentRepository:
             .order_by(ReviewComment.id)
         )
 
-        return list(
-            self.db.scalars(
-                _apply_pagination(statement, limit, offset)
-            ).all()
-        )
+        return list(self.db.scalars(_apply_pagination(statement, limit, offset)).all())
 
     def comments_for_rejected_tasks(
         self,
@@ -81,6 +77,4 @@ class ReviewCommentRepository:
             .order_by(ReviewComment.id)
         )
 
-        return list(
-            self.db.scalars(_apply_pagination(statement, limit, offset)).all()
-        )
+        return list(self.db.scalars(_apply_pagination(statement, limit, offset)).all())

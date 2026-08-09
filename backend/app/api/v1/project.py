@@ -3,32 +3,26 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
-from app.db.session import get_db
 from app.auth.dependencies import get_current_active_user
-
-from app.models.user import User
-from app.models.project import Project
-
-from app.schemas.project import ProjectCreate, ProjectRead, ProjectRole, ProjectUpdate
 from app.auth.schemas import UserRead
-
-from app.services.project_actions import create_project, update_project, delete_project
-from app.services.project_members import leave_project
-from app.services.project_queries import ProjectQueryService, project_to_read
-from app.services.project_membership import get_project_role
-
-from app.repositories.project import ProjectRepository
-
+from app.cache.project import ProjectCache
+from app.db.session import get_db
+from app.dependencies.cache import get_project_cache
+from app.dependencies.pagination import Pagination, get_pagination
 from app.dependencies.project import (
     require_can_manage_sprints,
     require_can_view_project,
 )
 from app.dependencies.project_queries import get_project_query_service
-from app.dependencies.pagination import Pagination, get_pagination
 from app.dependencies.rate_limiter import rate_limit_authenticated_mutation
-
-from app.cache.project import ProjectCache
-from app.dependencies.cache import get_project_cache
+from app.models.project import Project
+from app.models.user import User
+from app.repositories.project import ProjectRepository
+from app.schemas.project import ProjectCreate, ProjectRead, ProjectRole, ProjectUpdate
+from app.services.project_actions import create_project, delete_project, update_project
+from app.services.project_members import leave_project
+from app.services.project_membership import get_project_role
+from app.services.project_queries import ProjectQueryService, project_to_read
 
 router = APIRouter()
 

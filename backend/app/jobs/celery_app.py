@@ -1,11 +1,11 @@
-from celery import Celery
-from celery.signals import task_failure, task_postrun, task_prerun
 import logging
 from typing import Any
 
+from celery import Celery
+from celery.signals import task_failure, task_postrun, task_prerun
+
 from app.core.config import settings
 from app.core.logging import configure_logging
-
 
 configure_logging()
 logger = logging.getLogger("app.celery")

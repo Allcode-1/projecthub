@@ -3,10 +3,10 @@ from typing import Annotated
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
+from app.cache.project import ProjectCache
 from app.db.session import get_db
 from app.dependencies.cache import get_project_cache
 from app.repositories.project import ProjectRepository
-from app.cache.project import ProjectCache
 from app.services.project_queries import ProjectQueryService
 
 DbSession = Annotated[Session, Depends(get_db)]

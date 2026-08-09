@@ -12,7 +12,6 @@ from app.jobs.celery_app import celery_app
 from app.models.sprint import Sprint, SprintStatus
 from app.redis.client import get_redis
 
-
 logger = logging.getLogger(__name__)
 
 

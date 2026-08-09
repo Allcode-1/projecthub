@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 
 from app.auth.dependencies import get_current_active_user
 from app.db.session import get_db
-from app.dependencies.rate_limiter import rate_limit_authenticated_mutation
 from app.dependencies.project import require_can_manage_sprints, require_can_take_tasks
+from app.dependencies.rate_limiter import rate_limit_authenticated_mutation
 from app.dependencies.sprint import get_sprint_by_id_or_404
 from app.dependencies.task import get_task_by_id_or_404
 from app.models.project import Project
@@ -22,7 +22,6 @@ from app.services.task_actions import (
     send_task_to_review,
     take_task_to_work,
 )
-
 
 router = APIRouter()
 

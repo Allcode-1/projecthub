@@ -1,7 +1,7 @@
-from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import String, ForeignKey, DateTime, Index
-
 from datetime import datetime
+
+from sqlalchemy import DateTime, ForeignKey, Index, String
+from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.session import Base
 

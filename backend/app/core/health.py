@@ -92,4 +92,3 @@ def readiness_payload() -> tuple[dict, int]:
         },
         200 if is_ready else 503,
     )
-

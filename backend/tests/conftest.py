@@ -1,20 +1,19 @@
 import os
 
+import app.models  # noqa: F401
 import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.engine import make_url
-from sqlalchemy.orm import Session
-
 from app.cache.base import RedisCache
 from app.db.session import Base, get_db
 from app.dependencies.cache import get_cache
 from app.dependencies.rate_limiter import get_rate_limiter
 from app.main import app as fastapi_app
 from app.security.rate_limiter import RateLimiter
-import app.models  # noqa: F401
-from tests.fakes import InMemoryRedis
+from fastapi.testclient import TestClient
+from sqlalchemy import create_engine
+from sqlalchemy.engine import make_url
+from sqlalchemy.orm import Session
 
+from tests.fakes import InMemoryRedis
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 _TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL")
@@ -51,7 +50,11 @@ def validate_test_database_url() -> None:
 validate_test_database_url()
 
 
-engine = create_engine(TEST_DATABASE_URL, echo=False)
+engine = create_engine(
+    TEST_DATABASE_URL,
+    echo=False,
+    connect_args={"connect_timeout": 5},
+)
 
 
 @pytest.fixture(scope="session")

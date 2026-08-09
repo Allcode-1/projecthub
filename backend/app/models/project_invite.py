@@ -1,16 +1,17 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
 
 from enum import Enum
+from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Enum as SAEnum, Index
+from sqlalchemy import Enum as SAEnum
+from sqlalchemy import ForeignKey, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
 
 if TYPE_CHECKING:
-    from app.models.user import User
     from app.models.project import Project
+    from app.models.user import User
 
 
 class ProjectInviteAccessLevel(str, Enum):
@@ -60,14 +61,14 @@ class ProjectInvite(Base):
         default=ProjectInviteStatus.PENDING,
     )
 
-    project: Mapped["Project"] = relationship(back_populates="project_invites")
+    project: Mapped[Project] = relationship(back_populates="project_invites")
 
-    sender: Mapped["User"] = relationship(
+    sender: Mapped[User] = relationship(
         back_populates="sent_project_invites",
         foreign_keys=[send_by],
     )
 
-    recipient: Mapped["User"] = relationship(
+    recipient: Mapped[User] = relationship(
         back_populates="received_project_invites",
         foreign_keys=[send_to],
     )

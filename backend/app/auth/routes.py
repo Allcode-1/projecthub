@@ -1,28 +1,23 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status, Form, Request
+from fastapi import APIRouter, Depends, Form, Request, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.db.session import get_db
 from app.auth import service as auth_service
-
-from app.models.user import User
-
 from app.auth.dependencies import get_current_active_user, require_admin
-
-from app.auth.schemas import UserCreate, UserRead, TokenPair, RefreshToken
-
-from app.security.rate_limiter import RateLimiter
+from app.auth.schemas import RefreshToken, TokenPair, UserCreate, UserRead
 from app.core.config import settings
+from app.db.session import get_db
+from app.dependencies.pagination import Pagination, get_pagination
 from app.dependencies.rate_limiter import (
     get_rate_limiter,
     rate_limit_auth_logout,
     rate_limit_auth_refresh,
     rate_limit_auth_register,
 )
-from app.dependencies.pagination import Pagination, get_pagination
-
+from app.models.user import User
+from app.security.rate_limiter import RateLimiter
 
 router = APIRouter(prefix="/auth", tags=["jwt-based auth"])
 
@@ -87,10 +82,7 @@ def get_me(
 def get_all_users(user: AdminUser, db: DbSession, pagination: PaginationDep):
 
     users = db.scalars(
-        select(User)
-        .order_by(User.id)
-        .limit(pagination.limit)
-        .offset(pagination.offset)
+        select(User).order_by(User.id).limit(pagination.limit).offset(pagination.offset)
     ).all()
 
     return users

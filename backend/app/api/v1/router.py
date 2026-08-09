@@ -1,11 +1,13 @@
 from fastapi import APIRouter
 
-from app.api.v1 import project
-from app.api.v1 import sprint
-from app.api.v1 import project_invite
-from app.api.v1 import review_comment
-from app.api.v1 import task
-from app.api.v1 import task_actions
+from app.api.v1 import (
+    project,
+    project_invite,
+    review_comment,
+    sprint,
+    task,
+    task_actions,
+)
 
 v1_router = APIRouter(prefix="/api/v1")
 

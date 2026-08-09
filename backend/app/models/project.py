@@ -1,17 +1,17 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
 
 from datetime import datetime
+from typing import TYPE_CHECKING
 
+from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Index, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import CheckConstraint, ForeignKey, DateTime, Index, String, func
 
 from app.db.session import Base
 
 if TYPE_CHECKING:
-    from app.models.user import User
-    from app.models.project_member import ProjectMember
     from app.models.project_invite import ProjectInvite
+    from app.models.project_member import ProjectMember
+    from app.models.user import User
 
 
 class Project(Base):
@@ -31,12 +31,12 @@ class Project(Base):
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
 
-    project_members: Mapped[list["ProjectMember"]] = relationship(
+    project_members: Mapped[list[ProjectMember]] = relationship(
         back_populates="project", cascade="all, delete-orphan", passive_deletes=True
     )
 
-    project_invites: Mapped[list["ProjectInvite"]] = relationship(
+    project_invites: Mapped[list[ProjectInvite]] = relationship(
         back_populates="project", cascade="all, delete-orphan", passive_deletes=True
     )
 
-    owner: Mapped["User"] = relationship(back_populates="projects")
+    owner: Mapped[User] = relationship(back_populates="projects")

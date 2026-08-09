@@ -1,19 +1,14 @@
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy.orm import Session
-
+from app.cache.sprint import SprintCache
 from app.core.errors import AppError
-from app.models.user import User
 from app.models.project import Project
 from app.models.sprint import Sprint, SprintStatus
-
-from app.schemas.sprint import SprintCreate, SprintUpdate
-
+from app.models.user import User
 from app.repositories.sprint import SprintRepository
-
+from app.schemas.sprint import SprintCreate, SprintUpdate
 from app.services.project_membership import can_manage_sprints
-
-from app.cache.sprint import SprintCache
+from sqlalchemy.orm import Session
 
 
 def _ensure_sprint_dates(starts_at: datetime | None, ends_at: datetime | None) -> None:
@@ -95,8 +90,6 @@ def delete_sprint(
     db.commit()
 
     sprint_cache.invalidate_project_sprints(project.id)
-
-    return None
 
 
 def start_sprint(

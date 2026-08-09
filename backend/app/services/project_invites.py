@@ -1,23 +1,19 @@
 from datetime import datetime, timezone
 
-from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
-
+from app.cache.project import ProjectCache
 from app.core.errors import AppError
-from app.models.user import User
 from app.models.project import Project
-from app.models.project_member import ProjectMember
 from app.models.project_invite import (
     ProjectInvite,
     ProjectInviteStatus,
 )
-
-from app.schemas.project_invite import ProjectInviteCreate, ProjectInviteUpdate
-
+from app.models.project_member import ProjectMember
+from app.models.user import User
 from app.repositories.project_invite import ProjectInviteRepository
-
+from app.schemas.project_invite import ProjectInviteCreate, ProjectInviteUpdate
 from app.services.project_membership import can_view_project, get_project_access
-from app.cache.project import ProjectCache
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 
 
 def invite_to_project_by_id(
@@ -94,8 +90,6 @@ def delete_invite(project: Project, user: User, recipient: User, db: Session) ->
 
     db.delete(existing_invite)
     db.commit()
-
-    return None
 
 
 def accept_invite(

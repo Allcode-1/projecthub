@@ -1,10 +1,9 @@
 from datetime import datetime, timedelta, timezone
+from uuid import uuid4
 
 from app.auth import utils as auth_utils
 from app.core.config import settings
 from app.models.user import User
-
-from uuid import uuid4
 
 
 def create_access_token(user: User) -> str:

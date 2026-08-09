@@ -1,19 +1,15 @@
-from sqlalchemy.orm import Session
-
 from app.core.errors import AppError
-from app.models.task import Task, TaskStatus
-from app.models.user import User
 from app.models.project import Project
 from app.models.sprint import Sprint, SprintStatus
-
-from app.schemas.task import TaskUpdate, TaskCreate
-from app.schemas.review_comments import ReviewCommentCreate
-
-from app.repositories.task import TaskRepository
+from app.models.task import Task, TaskStatus
+from app.models.user import User
 from app.repositories.project import ProjectRepository
 from app.repositories.review_comment import ReviewCommentRepository
-
+from app.repositories.task import TaskRepository
+from app.schemas.review_comments import ReviewCommentCreate
+from app.schemas.task import TaskCreate, TaskUpdate
 from app.services.project_membership import can_manage_sprints
+from sqlalchemy.orm import Session
 
 
 def _ensure_sprint_open(sprint: Sprint) -> None:
@@ -114,8 +110,6 @@ def delete_task(
 
     db.delete(locked_task)
     db.commit()
-
-    return None
 
 
 def take_task_to_work(sprint: Sprint, task: Task, user: User, db: Session) -> Task:

@@ -7,11 +7,10 @@ from app.auth.dependencies import get_current_active_user
 from app.db.session import get_db
 from app.models.project import Project
 from app.models.user import User
-
 from app.repositories.project import ProjectRepository
 from app.services.project_membership import (
-    can_take_tasks,
     can_manage_sprints,
+    can_take_tasks,
     can_view_project,
 )
 

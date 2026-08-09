@@ -7,7 +7,6 @@ from typing import Any
 from redis import Redis
 from redis.exceptions import RedisError
 
-
 logger = logging.getLogger(__name__)
 
 

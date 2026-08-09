@@ -1,6 +1,6 @@
+from app.cache.sprint import SprintCache
 from app.repositories.sprint import SprintRepository
 from app.schemas.sprint import SprintRead
-from app.cache.sprint import SprintCache
 
 
 class SprintQueryService:
@@ -27,8 +27,6 @@ class SprintQueryService:
             for sprint in sprints
         ]
 
-        self.sprint_cache.set_project_sprints(
-            project_id, sprint_reads, limit, offset
-        )
+        self.sprint_cache.set_project_sprints(project_id, sprint_reads, limit, offset)
 
         return sprint_reads

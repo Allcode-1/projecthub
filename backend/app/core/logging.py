@@ -6,7 +6,6 @@ from typing import Any
 
 from app.core.config import settings
 
-
 _request_id: ContextVar[str | None] = ContextVar("request_id", default=None)
 
 

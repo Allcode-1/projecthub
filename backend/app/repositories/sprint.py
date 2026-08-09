@@ -51,10 +51,8 @@ class SprintRepository:
     def all_sprints(
         self, project_id: int, limit: int | None = None, offset: int = 0
     ) -> list[Sprint]:
-        statement = select(Sprint).where(Sprint.project_id == project_id).order_by(
-            Sprint.id
+        statement = (
+            select(Sprint).where(Sprint.project_id == project_id).order_by(Sprint.id)
         )
 
-        return list(
-            self.db.scalars(_apply_pagination(statement, limit, offset)).all()
-        )
+        return list(self.db.scalars(_apply_pagination(statement, limit, offset)).all())

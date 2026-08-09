@@ -6,7 +6,6 @@ from fastapi import FastAPI, Request
 
 from app.core.logging import reset_request_id, set_request_id
 
-
 logger = logging.getLogger("app.http")
 
 
@@ -53,4 +52,3 @@ def register_request_logging(app: FastAPI) -> None:
 
         reset_request_id(token)
         return response
-

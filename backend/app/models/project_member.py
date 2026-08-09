@@ -1,18 +1,18 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
 
 from datetime import datetime
+from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, DateTime, UniqueConstraint, Enum as SAEnum
+from sqlalchemy import DateTime, ForeignKey, UniqueConstraint
+from sqlalchemy import Enum as SAEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
-
 from app.models.project_invite import ProjectInviteAccessLevel
 
 if TYPE_CHECKING:
-    from app.models.user import User
     from app.models.project import Project
+    from app.models.user import User
 
 
 class ProjectMember(Base):
@@ -42,5 +42,5 @@ class ProjectMember(Base):
 
     joined_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
-    project: Mapped["Project"] = relationship(back_populates="project_members")
-    user: Mapped["User"] = relationship(back_populates="project_members")
+    project: Mapped[Project] = relationship(back_populates="project_members")
+    user: Mapped[User] = relationship(back_populates="project_members")

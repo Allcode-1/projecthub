@@ -1,8 +1,8 @@
 from pathlib import Path
 
 from dotenv import load_dotenv
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import BaseModel
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).parent.parent.parent
 

@@ -6,6 +6,7 @@ build/
 dist/
 wheels/
 *.egg-info
+*_cache
 
 # Virtual environments
 .venv
@@ -13,3 +14,5 @@ wheels/
 .env
 plan.txt
 certs/
+
+.vscode

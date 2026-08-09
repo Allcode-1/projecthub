@@ -3,36 +3,30 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
+from app.auth.dependencies import get_current_active_user
+from app.cache.project import ProjectCache
 from app.core.errors import AppError
 from app.db.session import get_db
-from app.auth.dependencies import get_current_active_user
-
-from app.models.user import User
+from app.dependencies.cache import get_project_cache
+from app.dependencies.pagination import Pagination, get_pagination
+from app.dependencies.project import require_can_manage_sprints
+from app.dependencies.project_invite import recipient_by_id_or_404
+from app.dependencies.rate_limiter import rate_limit_authenticated_mutation
 from app.models.project import Project
-
+from app.models.user import User
+from app.repositories.project_invite import ProjectInviteRepository
 from app.schemas.project_invite import (
     ProjectInviteCreate,
     ProjectInviteRead,
     ProjectInviteUpdate,
 )
-
 from app.services.project_invites import (
-    invite_to_project_by_id,
-    update_invite,
-    delete_invite,
     accept_invite,
     decline_invite,
+    delete_invite,
+    invite_to_project_by_id,
+    update_invite,
 )
-
-from app.repositories.project_invite import ProjectInviteRepository
-
-from app.dependencies.project import require_can_manage_sprints
-from app.dependencies.project_invite import recipient_by_id_or_404
-from app.dependencies.cache import get_project_cache
-from app.dependencies.pagination import Pagination, get_pagination
-from app.dependencies.rate_limiter import rate_limit_authenticated_mutation
-from app.cache.project import ProjectCache
-
 
 router = APIRouter()
 

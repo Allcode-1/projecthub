@@ -1,13 +1,12 @@
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy import select
-
 from app.models.project import Project
 from app.models.review_comment import ReviewComment
 from app.models.sprint import Sprint
 from app.models.task import Task
 from app.models.user import User
 from app.repositories.task import TaskRepository
+from sqlalchemy import select
 
 from tests.helpers import (
     auth_headers,

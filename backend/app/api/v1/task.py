@@ -5,28 +5,22 @@ from sqlalchemy.orm import Session
 
 from app.auth.dependencies import get_current_active_user
 from app.db.session import get_db
-
-from app.models.user import User
-from app.models.task import Task
-from app.models.project import Project
-from app.models.sprint import Sprint
-
-from app.schemas.task import TaskCreate, TaskRead, TaskUpdate
-
-from app.services.task_actions import add_task, update_task, delete_task
-
-from app.repositories.task import TaskRepository
-
+from app.dependencies.pagination import Pagination, get_pagination
 from app.dependencies.project import (
     require_can_manage_sprints,
     require_can_take_tasks,
     require_can_view_project,
 )
+from app.dependencies.rate_limiter import rate_limit_authenticated_mutation
 from app.dependencies.sprint import get_sprint_by_id_or_404
 from app.dependencies.task import get_task_by_id_or_404
-from app.dependencies.pagination import Pagination, get_pagination
-from app.dependencies.rate_limiter import rate_limit_authenticated_mutation
-
+from app.models.project import Project
+from app.models.sprint import Sprint
+from app.models.task import Task
+from app.models.user import User
+from app.repositories.task import TaskRepository
+from app.schemas.task import TaskCreate, TaskRead, TaskUpdate
+from app.services.task_actions import add_task, delete_task, update_task
 
 router = APIRouter()
 
