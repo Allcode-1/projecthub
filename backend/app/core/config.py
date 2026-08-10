@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from dotenv import load_dotenv
-from pydantic import BaseModel
+from pydantic import BaseModel, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).parent.parent.parent
@@ -78,6 +78,11 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6390/0"
 
     celery_broker_url: str = "amqp://guest:guest@localhost:5672//"
+
+    sender_email: str
+    smtp_password: SecretStr
+    smtp_hostname: str = "smtp.gmail.com"
+    smtp_port: int = 587
 
 
 settings = Settings()

@@ -16,6 +16,7 @@ from app.dependencies.rate_limiter import (
     rate_limit_auth_refresh,
     rate_limit_auth_register,
 )
+from app.jobs.email import send_email
 from app.models.user import User
 from app.security.rate_limiter import RateLimiter
 
@@ -35,7 +36,12 @@ PaginationDep = Annotated[Pagination, Depends(get_pagination)]
     dependencies=[Depends(rate_limit_auth_register)],
 )
 def register_user(payload: UserCreate, db: DbSession):
-    return auth_service.register_user(payload, db)
+
+    user = auth_service.register_user(payload, db)
+    send_email.delay(
+        user.email, "Welcome!", "welcome.html", {"username": user.username}
+    )
+    return user
 
 
 @router.post("/login", response_model=TokenPair)
