@@ -1,7 +1,7 @@
 from tests.helpers import auth_headers, login_user, register_user
 
 
-def test_register_user(client):
+def test_register_user(client, email_task_delay):
     response = client.post(
         "/auth/register",
         json={"username": "sam", "email": "sam@example.com", "password": "secret123"},
@@ -13,6 +13,9 @@ def test_register_user(client):
     assert data["username"] == "sam"
     assert data["email"] == "sam@example.com"
     assert "hashed_password" not in data
+    email_task_delay.assert_called_once_with(
+        "sam@example.com", "Welcome!", "welcome.html", {"username": "sam"}
+    )
 
 
 def test_login_user(client):

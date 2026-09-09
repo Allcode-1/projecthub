@@ -1,7 +1,9 @@
 import os
+from unittest.mock import Mock
 
 import app.models  # noqa: F401
 import pytest
+from app.auth import routes as auth_routes
 from app.cache.base import RedisCache
 from app.db.session import Base, get_db
 from app.dependencies.cache import get_cache
@@ -88,6 +90,13 @@ def db_session(test_engine):
 @pytest.fixture(scope="function")
 def fake_redis():
     return InMemoryRedis()
+
+
+@pytest.fixture(autouse=True)
+def email_task_delay(monkeypatch: pytest.MonkeyPatch) -> Mock:
+    delay = Mock()
+    monkeypatch.setattr(auth_routes.send_email, "delay", delay)
+    return delay
 
 
 @pytest.fixture(scope="function")
