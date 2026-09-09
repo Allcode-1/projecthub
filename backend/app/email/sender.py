@@ -7,6 +7,8 @@ from app.core.config import settings
 """
 overkill async is intentional; celery bg exec
 """
+
+
 async def send_email(recipient: str, subject: str, html_body: str) -> None:
     message = EmailMessage()
     message["From"] = settings.sender_email

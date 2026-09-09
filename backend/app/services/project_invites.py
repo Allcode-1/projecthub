@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 
 from app.cache.project import ProjectCache
 from app.core.errors import AppError
+from app.dependencies.pagination import Pagination
 from app.models.project import Project
 from app.models.project_invite import (
     ProjectInvite,
@@ -10,7 +11,10 @@ from app.models.project_invite import (
 from app.models.project_member import ProjectMember
 from app.models.user import User
 from app.repositories.project_invite import ProjectInviteRepository
-from app.schemas.project_invite import ProjectInviteCreate, ProjectInviteUpdate
+from app.schemas.project_invite import (
+    ProjectInviteCreate,
+    ProjectInviteUpdate,
+)
 from app.services.project_membership import can_view_project, get_project_access
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -90,6 +94,27 @@ def delete_invite(project: Project, user: User, recipient: User, db: Session) ->
 
     db.delete(existing_invite)
     db.commit()
+
+
+def get_my_invites(
+    user: User, pagination: Pagination, db: Session
+) -> list[ProjectInvite]:
+    invites_repo = ProjectInviteRepository(db)
+    my_invites = invites_repo.invites_to_user(
+        user.id, pagination.limit, pagination.offset
+    )
+    return my_invites
+
+
+def get_invite_by_id(invite_id: int, user: User, db: Session) -> ProjectInvite:
+
+    invites_repo = ProjectInviteRepository(db)
+    invite = invites_repo.invite_by_id(invite_id)
+
+    if not invite or invite.send_to != user.id:
+        raise AppError(404, "Invite not found")
+
+    return invite
 
 
 def accept_invite(

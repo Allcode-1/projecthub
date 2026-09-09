@@ -31,7 +31,7 @@ class ProjectInviteRepository:
         self.db.add(project_invite)
         return project_invite
 
-    def invite_by_id(self, invite_id) -> ProjectInvite | None:
+    def invite_by_id(self, invite_id: int) -> ProjectInvite | None:
 
         return self.db.scalar(
             select(ProjectInvite).where(ProjectInvite.id == invite_id)
@@ -62,7 +62,7 @@ class ProjectInviteRepository:
             )
         )
 
-    def recipient_by_id(self, recipient_id):
+    def recipient_by_id(self, recipient_id: int):
 
         return self.db.scalar(select(User).where(User.id == recipient_id))
 

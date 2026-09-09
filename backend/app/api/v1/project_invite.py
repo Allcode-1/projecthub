@@ -5,7 +5,6 @@ from sqlalchemy.orm import Session
 
 from app.auth.dependencies import get_current_active_user
 from app.cache.project import ProjectCache
-from app.core.errors import AppError
 from app.db.session import get_db
 from app.dependencies.cache import get_project_cache
 from app.dependencies.pagination import Pagination, get_pagination
@@ -14,7 +13,6 @@ from app.dependencies.project_invite import recipient_by_id_or_404
 from app.dependencies.rate_limiter import rate_limit_authenticated_mutation
 from app.models.project import Project
 from app.models.user import User
-from app.repositories.project_invite import ProjectInviteRepository
 from app.schemas.project_invite import (
     ProjectInviteCreate,
     ProjectInviteRead,
@@ -24,6 +22,8 @@ from app.services.project_invites import (
     accept_invite,
     decline_invite,
     delete_invite,
+    get_invite_by_id,
+    get_my_invites,
     invite_to_project_by_id,
     update_invite,
 )
@@ -87,29 +87,19 @@ def delete_user_invite(
 
 
 @router.get("/invites", response_model=list[ProjectInviteRead])
-def get_my_invites(user: CurrentUser, db: DbSession, pagination: PaginationDep):
+def get_my_invites_router(user: CurrentUser, db: DbSession, pagination: PaginationDep):
 
-    invites_repo = ProjectInviteRepository(db)
-    my_invites = invites_repo.invites_to_user(
-        user.id, pagination.limit, pagination.offset
-    )
-    return my_invites
+    return get_my_invites(user, pagination, db)
 
 
 @router.get("/invites/{invite_id}", response_model=ProjectInviteRead)
-def get_invite_by_id(
+def get_invite_by_id_router(
     invite_id: int,
     user: CurrentUser,
     db: DbSession,
 ):
 
-    invites_repo = ProjectInviteRepository(db)
-    invite = invites_repo.invite_by_id(invite_id)
-
-    if not invite or invite.send_to != user.id:
-        raise AppError(404, "Invite not found")
-
-    return invite
+    return get_invite_by_id(invite_id, user, db)
 
 
 @router.patch(
