@@ -227,9 +227,10 @@ The Docker image:
 - uses a non-root application user;
 - exposes a container healthcheck against `/health/live`.
 
-Docker Compose includes PostgreSQL, Redis, RabbitMQ, API, one-shot Alembic
-migration service, Celery worker, and Celery Beat. API, worker, and beat read
-JWT key files from Docker secrets mounted from `./certs`.
+Docker Compose includes PostgreSQL, Redis, RabbitMQ, API, a one-shot Alembic
+migration service, Celery worker, and Celery Beat. API, worker, and beat wait
+for the migration service to complete successfully and read JWT key files from
+Docker secrets mounted from `./certs`.
 
 ## Testing And CI
 

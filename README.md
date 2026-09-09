@@ -55,7 +55,7 @@ Currently implemented:
 - Docker Compose smoke job in CI;
 - PostgreSQL constraints/indexes;
 - Alembic migrations;
-- Docker Compose with healthchecks, migration service, and key secrets;
+- Docker Compose with healthchecks, one-shot Alembic migration service, and key secrets;
 - load/concurrency smoke scripts;
 - integration tests.
 

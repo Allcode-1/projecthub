@@ -278,9 +278,9 @@ project list endpoint, then prints p50/p95/max latency.
 ## Docker Compose
 
 The repository includes Docker Compose services for the API, PostgreSQL, Redis,
-RabbitMQ, Celery worker, and Celery Beat.
+RabbitMQ, a one-shot Alembic migration, Celery worker, and Celery Beat.
 
-Generate JWT keys in `certs/`, then start the stack:
+Generate JWT keys in `certs/`, then start the stack from the repository root:
 
 ```bash
 mkdir -p certs
@@ -291,8 +291,10 @@ docker compose up -d --build
 ```
 
 Compose includes healthchecks for PostgreSQL, Redis, RabbitMQ, and the API. A
-one-shot `migrate` service applies Alembic migrations after PostgreSQL becomes
-healthy and before the API, worker, and beat services start.
+one-shot `migrate` service runs `alembic upgrade head` after PostgreSQL becomes
+healthy. The API, worker, and beat services wait for that command to finish
+successfully before they start. If the database is already at the latest
+Alembic revision, the migration exits without changing data.
 
 The API image runs as a non-root user. JWT keys stay outside the image and are
 mounted into API/worker/beat containers as Docker secrets. On Linux, the key
@@ -333,6 +335,10 @@ DATABASE__POOL_RECYCLE_SECONDS=1800
 DATABASE__POOL_PRE_PING=true
 DATABASE__CONNECT_TIMEOUT_SECONDS=5
 DATABASE__STATEMENT_TIMEOUT_MS=30000
+SENDER_EMAIL=your-email@example.com
+SMTP_PASSWORD=your-smtp-password
+SMTP_HOSTNAME=smtp.gmail.com
+SMTP_PORT=587
 ```
 
 Install dependencies:
