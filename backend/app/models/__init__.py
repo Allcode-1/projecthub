@@ -1,3 +1,4 @@
+from app.models.outbox_event import OutboxEvent
 from app.models.project import Project
 from app.models.project_invite import ProjectInvite
 from app.models.project_member import ProjectMember
@@ -9,6 +10,7 @@ from app.models.user import User
 
 __all__ = (
     "Project",
+    "OutboxEvent",
     "ProjectInvite",
     "ProjectMember",
     "RefreshSession",

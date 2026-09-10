@@ -24,3 +24,4 @@ class RateLimiter:
                 detail="Too many requests",
                 headers={"Retry-After": str(retry_after)},
             )
+            # raise AppError(status_code=409, detail="Too many requests")

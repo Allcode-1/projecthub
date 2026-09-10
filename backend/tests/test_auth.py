@@ -1,7 +1,10 @@
+from sqlalchemy import select
+
+from app.models.outbox_event import OutboxEvent
 from tests.helpers import auth_headers, login_user, register_user
 
 
-def test_register_user(client, email_task_delay):
+def test_register_user(client, db_session):
     response = client.post(
         "/auth/register",
         json={"username": "sam", "email": "sam@example.com", "password": "secret123"},
@@ -13,9 +16,11 @@ def test_register_user(client, email_task_delay):
     assert data["username"] == "sam"
     assert data["email"] == "sam@example.com"
     assert "hashed_password" not in data
-    email_task_delay.assert_called_once_with(
-        "sam@example.com", "Welcome!", "welcome.html", {"username": "sam"}
-    )
+    outbox_event = db_session.scalar(select(OutboxEvent))
+    assert outbox_event is not None
+    assert outbox_event.event_type == "user.registered"
+    assert outbox_event.payload == {"email": "sam@example.com", "username": "sam"}
+    assert outbox_event.sent is False
 
 
 def test_login_user(client):

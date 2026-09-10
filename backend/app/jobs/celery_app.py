@@ -14,7 +14,7 @@ logger = logging.getLogger("app.celery")
 celery_app = Celery(
     "project_hub",
     broker=settings.celery_broker_url,
-    include=["app.jobs.sprint_lifecycle", "app.jobs.email"],
+    include=["app.jobs.sprint_lifecycle", "app.jobs.email", "app.jobs.outbox_dispatcher"],
 )
 
 celery_app.conf.update(
@@ -30,6 +30,11 @@ celery_app.conf.update(
             "task": "project_hub.sprints.sync_lifecycle",
             "schedule": 60.0,
             "options": {"expires": 55},
+        },
+        "dispatch-outbox-events-every-ten-seconds": {
+            "task": "project_hub.outbox.dispatch",
+            "schedule": 10.0,
+            "options": {"expires": 9},
         },
     },
 )

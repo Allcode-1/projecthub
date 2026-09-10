@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 
 from jwt.exceptions import InvalidTokenError
-from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -11,6 +10,8 @@ from app.auth.tokens import create_access_token, create_refresh_token
 from app.core.errors import AppError
 from app.models.refresh_session import RefreshSession
 from app.models.user import User
+from app.repositories.auth import AuthRepository
+from app.repositories.outbox import OutboxRepository
 
 
 def _invalid_token_error() -> AppError:
@@ -32,17 +33,10 @@ def _decode_refresh_payload(refresh_token: str) -> dict:
     return token_payload
 
 
-def _revoke_active_refresh_session(db: Session, jti: str, now: datetime) -> int:
-    user_id = db.scalar(
-        update(RefreshSession)
-        .where(
-            RefreshSession.jti == jti,
-            RefreshSession.revoked_at.is_(None),
-            RefreshSession.expires_at >= now,
-        )
-        .values(revoked_at=now)
-        .returning(RefreshSession.user_id)
-    )
+def _revoke_active_refresh_session(
+    auth_repo: AuthRepository, jti: str, now: datetime
+) -> int:
+    user_id = auth_repo.revoke_active_refresh_session(jti, now)
 
     if user_id is None:
         raise _invalid_token_error()
@@ -60,7 +54,8 @@ def _create_token_pair(user: User, db: Session) -> TokenPair:
         expires_at=refresh_expires_at,
     )
 
-    db.add(refresh_session)
+    auth_repo = AuthRepository(db)
+    auth_repo.add_refresh_session(refresh_session)
     try:
         db.commit()
     except IntegrityError as exc:
@@ -71,12 +66,15 @@ def _create_token_pair(user: User, db: Session) -> TokenPair:
 
 
 def register_user(payload: UserCreate, db: Session) -> User:
-    existing_user = db.scalar(select(User).where(User.username == payload.username))
+    auth_repo = AuthRepository(db)
+    outbox_repo = OutboxRepository(db)
+
+    existing_user = auth_repo.user_by_username(payload.username)
 
     if existing_user:
         raise AppError(409, "Username or email are already taken")
 
-    existing_email = db.scalar(select(User).where(User.email == payload.email))
+    existing_email = auth_repo.user_by_email(payload.email)
 
     if existing_email:
         raise AppError(409, "Username or email are already taken")
@@ -87,7 +85,11 @@ def register_user(payload: UserCreate, db: Session) -> User:
         hashed_password=auth_utils.hash_password(payload.password),
     )
 
-    db.add(user)
+    auth_repo.add_user(user)
+    outbox_repo.add_event(
+        "user.registered",
+        {"email": user.email, "username": user.username},
+    )
     try:
         db.commit()
     except IntegrityError as exc:
@@ -99,7 +101,8 @@ def register_user(payload: UserCreate, db: Session) -> User:
 
 
 def authenticate_user(username: str, password: str, db: Session) -> User:
-    user = db.scalar(select(User).where(User.username == username))
+    auth_repo = AuthRepository(db)
+    user = auth_repo.user_by_username(username)
 
     if not user:
         raise AppError(401, "Invalid credentials")
@@ -113,6 +116,11 @@ def authenticate_user(username: str, password: str, db: Session) -> User:
     return user
 
 
+def get_users(limit: int, offset: int, db: Session) -> list[User]:
+    auth_repo = AuthRepository(db)
+    return auth_repo.list_users(limit, offset)
+
+
 def login_user(username: str, password: str, db: Session) -> TokenPair:
     user = authenticate_user(username, password, db)
     return _create_token_pair(user, db)
@@ -122,7 +130,8 @@ def logout_user(refresh_token: str, db: Session) -> dict[str, str]:
     token_payload = _decode_refresh_payload(refresh_token)
     now = datetime.now(timezone.utc)
 
-    _revoke_active_refresh_session(db, token_payload["jti"], now)
+    auth_repo = AuthRepository(db)
+    _revoke_active_refresh_session(auth_repo, token_payload["jti"], now)
 
     db.commit()
     return {"message": "Logged out"}
@@ -132,7 +141,10 @@ def refresh_tokens(refresh_token: str, db: Session) -> TokenPair:
     token_payload = _decode_refresh_payload(refresh_token)
 
     now = datetime.now(timezone.utc)
-    session_user_id = _revoke_active_refresh_session(db, token_payload["jti"], now)
+    auth_repo = AuthRepository(db)
+    session_user_id = _revoke_active_refresh_session(
+        auth_repo, token_payload["jti"], now
+    )
 
     user_id = token_payload.get("sub")
 
@@ -147,7 +159,7 @@ def refresh_tokens(refresh_token: str, db: Session) -> TokenPair:
     if parsed_user_id != session_user_id:
         raise _invalid_token_error()
 
-    user = db.get(User, parsed_user_id)
+    user = auth_repo.user_by_id(parsed_user_id)
 
     if not user or not user.is_active:
         raise _invalid_token_error()

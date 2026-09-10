@@ -1,7 +1,6 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Form, Request, status
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.auth import service as auth_service
@@ -16,7 +15,6 @@ from app.dependencies.rate_limiter import (
     rate_limit_auth_refresh,
     rate_limit_auth_register,
 )
-from app.jobs.email import send_email
 from app.models.user import User
 from app.security.rate_limiter import RateLimiter
 
@@ -35,17 +33,11 @@ PaginationDep = Annotated[Pagination, Depends(get_pagination)]
     status_code=status.HTTP_201_CREATED,
     dependencies=[Depends(rate_limit_auth_register)],
 )
-def register_user(payload: UserCreate, db: DbSession):
-
-    user = auth_service.register_user(payload, db)
-    send_email.delay(
-        user.email, "Welcome!", "welcome.html", {"username": user.username}
-    )
-    return user
-
+def register_user_router(payload: UserCreate, db: DbSession) -> User:
+    return auth_service.register_user(payload, db)
 
 @router.post("/login", response_model=TokenPair)
-def login_user(
+def login_user_router(
     request: Request,
     username: Annotated[str, Form()],
     password: Annotated[str, Form()],
@@ -72,12 +64,12 @@ def login_user(
 
 
 @router.post("/logout", dependencies=[Depends(rate_limit_auth_logout)])
-def logout_user(payload: RefreshToken, db: DbSession):
+def logout_user_router(payload: RefreshToken, db: DbSession):
     return auth_service.logout_user(payload.refresh_token, db)
 
 
 @router.get("/users/me", response_model=UserRead)
-def get_me(
+def get_me_router(
     user: CurrentUser,
 ):
 
@@ -85,13 +77,8 @@ def get_me(
 
 
 @router.get("/users", response_model=list[UserRead])
-def get_all_users(user: AdminUser, db: DbSession, pagination: PaginationDep):
-
-    users = db.scalars(
-        select(User).order_by(User.id).limit(pagination.limit).offset(pagination.offset)
-    ).all()
-
-    return users
+def get_all_users_router(user: AdminUser, db: DbSession, pagination: PaginationDep):
+    return auth_service.get_users(pagination.limit, pagination.offset, db)
 
 
 @router.post(
@@ -99,5 +86,5 @@ def get_all_users(user: AdminUser, db: DbSession, pagination: PaginationDep):
     response_model=TokenPair,
     dependencies=[Depends(rate_limit_auth_refresh)],
 )
-def refresh_tokens(payload: RefreshToken, db: DbSession):
+def refresh_tokens_router(payload: RefreshToken, db: DbSession):
     return auth_service.refresh_tokens(payload.refresh_token, db)

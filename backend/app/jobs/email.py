@@ -6,6 +6,7 @@ from app.email.sender import send_email as deliver_email
 from app.jobs.celery_app import celery_app
 
 
+# retry policy
 @celery_app.task(name="project_hub.emails.send")
 def send_email(
     recipient: str,
