@@ -58,6 +58,8 @@ jobs:
       REDIS_URL: redis://localhost:6379/0
       CELERY_BROKER_URL: amqp://project_hub:project_hub@localhost:5672/project_hub
       LOG_LEVEL: INFO
+      SENDER_EMAIL: ci@example.com
+      SMTP_PASSWORD: ci-not-used
       READINESS_REQUIRE_REDIS: "true"
       READINESS_REQUIRE_RABBITMQ: "false"
 
@@ -126,6 +128,12 @@ jobs:
     name: Docker Compose Smoke
     runs-on: ubuntu-latest
     needs: backend
+
+    env:
+      SENDER_EMAIL: ci@example.com
+      SMTP_PASSWORD: ci-not-used
+      SMTP_HOSTNAME: maildev
+      SMTP_PORT: "1025"
 
     steps:
       - name: Check out repository
