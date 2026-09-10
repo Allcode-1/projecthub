@@ -8,9 +8,9 @@ review comments.
 
 PostgreSQL is the source of truth. Redis supports cache-aside reads and login
 rate limiting. RabbitMQ, Celery worker, and Celery Beat run scheduled sprint
-lifecycle synchronization. Operational concerns are covered by structured
-logging, health/readiness checks, Docker Compose, and GitHub Actions quality
-gates.
+lifecycle synchronization and transactional outbox dispatch. Operational
+concerns are covered by structured logging, health/readiness checks, Docker
+Compose, and GitHub Actions quality gates.
 
 ```text
 Client
@@ -31,6 +31,7 @@ PostgreSQL
 
 Query service -> Redis cache -> Repository fallback
 Celery Beat -> RabbitMQ -> Celery worker -> PostgreSQL/Redis invalidation
+Registration transaction -> PostgreSQL outbox -> Celery Beat -> RabbitMQ -> email worker
 ```
 
 ## Main Components
@@ -45,7 +46,8 @@ Celery Beat -> RabbitMQ -> Celery worker -> PostgreSQL/Redis invalidation
 | Models | `app/models/` | SQLAlchemy tables, enums, constraints, indexes |
 | Schemas | `app/schemas/` | Pydantic request and response contracts |
 | Cache | `app/cache/` | Redis keys, serialization, TTL, invalidation helpers |
-| Jobs | `app/jobs/` | Celery app and sprint lifecycle task |
+| Jobs | `app/jobs/` | Celery app, sprint lifecycle, email, and outbox dispatch tasks |
+| Outbox | `app/models/outbox_event.py`, `app/repositories/outbox.py` | Durable event intent written with domain changes |
 | Core | `app/core/` | Settings, errors, health checks, structured logging |
 | Database | `app/db/` | Engine, sessions, declarative base |
 | Migrations | `alembic/` | Database schema history |
@@ -117,6 +119,24 @@ A Celery worker consumes the message and:
 2. closes planned/active sprints whose end time has passed;
 3. invalidates sprint-list cache keys for affected projects.
 
+### Transactional outbox
+
+Registration writes the user row and a `user.registered` outbox row in one
+PostgreSQL transaction. This prevents a broker outage from turning a committed
+registration into a failed HTTP request or losing its welcome-email intent.
+
+Celery Beat schedules `project_hub.outbox.dispatch` every ten seconds. The
+dispatcher reads up to 100 unsent rows ordered by id using
+`FOR UPDATE SKIP LOCKED`, publishes the matching Celery task, and marks the row
+as sent in its transaction. `SKIP LOCKED` lets overlapping worker executions
+claim different pending rows without blocking each other.
+
+The boundary provides durable, at-least-once task handoff rather than exactly
+once delivery. A broker publish that succeeds before the database transaction
+commits can be published again on retry. The current email task has no
+deduplication key, retry-attempt metadata, backoff, or dead-letter path, so
+future non-idempotent consumers must add those protections.
+
 ### Health/readiness
 
 The API exposes:
@@ -169,6 +189,8 @@ Examples:
 - Task edit/delete locks the row with `FOR UPDATE` and allows only `TODO`
   tasks in open sprints.
 - Sprint state transitions are service-validated: planned -> active -> closed.
+- User registration writes the user and `user.registered` outbox event together;
+  dispatch happens only after that transaction commits.
 
 PostgreSQL remains authoritative even when Redis or RabbitMQ is unavailable.
 
@@ -234,9 +256,10 @@ Docker secrets mounted from `./certs`.
 
 ## Testing And CI
 
-The main pytest suite covers auth, refresh rotation, projects, invites,
-membership, sprints, task workflow, review comments, cache invalidation, and
-sprint lifecycle jobs. Redis is isolated in tests with an in-memory fake.
+The main pytest suite covers auth, refresh rotation, registration outbox
+persistence/dispatch, projects, invites, membership, sprints, task workflow,
+review comments, cache invalidation, and sprint lifecycle jobs. Redis is
+isolated in tests with an in-memory fake.
 
 Smoke scripts under `tests/smoke/` run against a live API:
 
@@ -270,4 +293,6 @@ Remaining production work:
 - full RBAC matrix tests for every command endpoint;
 - heavier load tests against a production-like PostgreSQL instance;
 - refresh-session cleanup job for expired sessions;
+- outbox delivery attempts, backoff/dead-letter handling, and idempotent email
+  consumption;
 - security review of auth, RBAC, CORS, headers, and abuse scenarios.

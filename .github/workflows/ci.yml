@@ -130,6 +130,9 @@ jobs:
     needs: backend
 
     env:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: project_hub
       SENDER_EMAIL: ci@example.com
       SMTP_PASSWORD: ci-not-used
       SMTP_HOSTNAME: maildev

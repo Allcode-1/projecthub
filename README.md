@@ -48,6 +48,7 @@ Currently implemented:
 - limit/offset pagination for list endpoints;
 - database pool, pre-ping, connect timeout, and statement timeout settings;
 - Celery sprint lifecycle synchronization;
+- transactional outbox dispatch for post-registration email;
 - structured JSON logging;
 - liveness/readiness health checks;
 - security and dependency audit commands;

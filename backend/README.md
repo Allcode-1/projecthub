@@ -16,6 +16,7 @@
 - Limit/offset pagination for list endpoints.
 - Redis-backed mutation rate limiting for authenticated write actions.
 - Celery Beat + RabbitMQ sprint lifecycle synchronization.
+- Transactional outbox for durable post-registration email dispatch.
 - Structured JSON logs for HTTP requests and Celery tasks.
 - Liveness/readiness health endpoints.
 - Security and dependency audit tooling.
@@ -178,6 +179,31 @@ Celery Beat schedules a sprint lifecycle synchronization job that periodically:
 - closes planned/active sprints whose end time has passed;
 - invalidates affected sprint-list cache keys.
 
+Celery Beat also dispatches pending transactional outbox events every ten
+seconds. Currently, registration creates a `user.registered` event, and the
+dispatcher turns it into the welcome-email task.
+
+## Transactional Outbox
+
+User registration commits the new user and a `user.registered` row in
+`outbox_events` in the same PostgreSQL transaction. The HTTP request therefore
+does not depend on RabbitMQ being reachable: after a successful registration,
+the delivery intent remains durable in PostgreSQL until a dispatcher can publish
+it.
+
+The dispatcher processes up to 100 unsent events at a time. It reads them in
+creation order with `FOR UPDATE SKIP LOCKED`, so concurrent dispatcher runs do
+not publish the same still-pending row at the same time. For each supported
+event, it enqueues the Celery task and marks the row `sent = true` in the
+dispatcher transaction.
+
+This is at-least-once handoff, not exactly-once email delivery. If RabbitMQ
+accepts a task but the dispatcher database transaction fails before committing
+the `sent` flag, a later run can enqueue that event again. Consumers must be
+safe to retry or add their own deduplication before non-idempotent side effects
+are introduced. The current implementation has no delivery-attempt counter,
+backoff policy, dead-letter handling, or consumer-side deduplication.
+
 ## Security And Dependency Audit
 
 Static code security scan:
@@ -238,9 +264,10 @@ uv run alembic check
 uv lock --check
 ```
 
-The test suite covers core API flows: auth, refresh rotation, projects, invites,
-membership, sprints, task workflow actions, review comments, cache invalidation,
-and sprint lifecycle jobs. Redis is isolated in tests with an in-memory fake.
+The test suite covers core API flows: auth, refresh rotation, registration
+outbox persistence and dispatch, projects, invites, membership, sprints, task
+workflow actions, review comments, cache invalidation, and sprint lifecycle
+jobs. Redis is isolated in tests with an in-memory fake.
 
 ## Load And Concurrency Smoke Tests
 
