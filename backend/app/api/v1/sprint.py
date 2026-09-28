@@ -135,7 +135,7 @@ def start_sprint_router(
     response_model=SprintRead,
     dependencies=[Depends(rate_limit_authenticated_mutation)],
 )
-def close_sprint_rputer(
+def close_sprint_router(
     project: ManageSprintsProject,
     sprint: CurrentSprint,
     user: CurrentUser,
