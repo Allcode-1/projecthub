@@ -12,9 +12,7 @@ class AuthRepository:
         self.db = db
 
     def user_by_username(self, username: str) -> User | None:
-        return self.db.scalar(
-            select(User).where(User.username == username)
-        )
+        return self.db.scalar(select(User).where(User.username == username))
 
     def user_by_email(self, email: str) -> User | None:
         return self.db.scalar(select(User).where(User.email == email))

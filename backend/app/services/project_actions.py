@@ -1,10 +1,11 @@
+from sqlalchemy.orm import Session
+
 from app.cache.project import ProjectCache
 from app.core.errors import AppError
 from app.models.project import Project
 from app.models.user import User
 from app.repositories.project import ProjectRepository
 from app.schemas.project import ProjectCreate, ProjectUpdate
-from sqlalchemy.orm import Session
 
 
 def _project_cache_user_ids(

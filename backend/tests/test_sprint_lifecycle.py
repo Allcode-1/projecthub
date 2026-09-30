@@ -1,11 +1,12 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
+
+from sqlalchemy.orm import Session
 
 from app.jobs.celery_app import celery_app
 from app.jobs.sprint_lifecycle import synchronize_sprint_lifecycle
 from app.models.project import Project
 from app.models.sprint import Sprint, SprintStatus
 from app.models.user import User
-from sqlalchemy.orm import Session
 
 
 def _get_sprint(db: Session, sprint_id: int) -> Sprint:
@@ -17,7 +18,7 @@ def _get_sprint(db: Session, sprint_id: int) -> Sprint:
 def test_synchronize_sprint_lifecycle_is_idempotent(
     db_session: Session,
 ):
-    now = datetime(2035, 1, 15, 12, tzinfo=timezone.utc)
+    now = datetime(2035, 1, 15, 12, tzinfo=UTC)
 
     owner = User(
         username="lifecycle-owner",

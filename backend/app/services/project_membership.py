@@ -1,9 +1,10 @@
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
 from app.models.project import Project
 from app.models.project_member import ProjectInviteAccessLevel, ProjectMember
 from app.models.user import User
 from app.schemas.project import ProjectRole
-from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 
 def get_project_access(

@@ -1,20 +1,20 @@
 import os
 from unittest.mock import Mock
 
-import app.models  # noqa: F401
 import pytest
-from app.jobs import outbox_dispatcher
-from app.cache.base import RedisCache
-from app.db.session import Base, get_db
-from app.dependencies.cache import get_cache
-from app.dependencies.rate_limiter import get_rate_limiter
-from app.main import app as fastapi_app
-from app.security.rate_limiter import RateLimiter
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session
 
+import app.models  # noqa: F401
+from app.cache.base import RedisCache
+from app.db.session import Base, get_db
+from app.dependencies.cache import get_cache
+from app.dependencies.rate_limiter import get_rate_limiter
+from app.jobs import outbox_dispatcher
+from app.main import app as fastapi_app
+from app.security.rate_limiter import RateLimiter
 from tests.fakes import InMemoryRedis
 
 DATABASE_URL = os.getenv("DATABASE_URL")

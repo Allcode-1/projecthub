@@ -9,8 +9,8 @@ from app.models.task import Task
 from app.models.user import User
 
 __all__ = (
-    "Project",
     "OutboxEvent",
+    "Project",
     "ProjectInvite",
     "ProjectMember",
     "RefreshSession",

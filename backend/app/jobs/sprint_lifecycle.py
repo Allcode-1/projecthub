@@ -1,6 +1,6 @@
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import or_, update
 from sqlalchemy.orm import Session
@@ -26,11 +26,28 @@ def synchronize_sprint_lifecycle(
     db: Session,
     now: datetime,
 ) -> SprintLifecycleResult:
-    closed_project_ids = list(
+
+    closed_planned_project_ids = list(
         db.scalars(
             update(Sprint)
             .where(
-                Sprint.status.in_((SprintStatus.PLANNED, SprintStatus.ACTIVE)),
+                Sprint.status == SprintStatus.PLANNED,
+                Sprint.ends_at.is_not(None),
+                Sprint.ends_at <= now,
+            )
+            .values(
+                status=SprintStatus.CLOSED,
+                closed_at=now,
+            )
+            .returning(Sprint.project_id)
+        ).all()
+    )
+
+    restarted_project_ids = list(
+        db.scalars(
+            update(Sprint)
+            .where(
+                Sprint.status == SprintStatus.ACTIVE,
                 Sprint.ends_at.is_not(None),
                 Sprint.ends_at <= now,
             )
@@ -61,14 +78,16 @@ def synchronize_sprint_lifecycle(
 
     return SprintLifecycleResult(
         started=len(started_project_ids),
-        closed=len(closed_project_ids),
-        project_ids=frozenset(started_project_ids + closed_project_ids),
+        closed=len(closed_planned_project_ids + restarted_project_ids),
+        project_ids=frozenset(
+            started_project_ids + restarted_project_ids + closed_planned_project_ids
+        ),
     )
 
 
 @celery_app.task(name="project_hub.sprints.sync_lifecycle")
 def sync_sprint_lifecycle() -> None:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     with SessionLocal.begin() as db:
         result = synchronize_sprint_lifecycle(db, now)
