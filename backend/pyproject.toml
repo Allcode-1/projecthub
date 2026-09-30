@@ -40,4 +40,5 @@ module = ["celery", "celery.*"]
 ignore_missing_imports = true
 
 [tool.mypy]
+disable_error_code = "annotation-unchecked"
 exclude = ["^alembic/versions/"]

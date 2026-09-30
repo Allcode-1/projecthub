@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from dotenv import load_dotenv
-from pydantic import BaseModel, SecretStr, Field
+from pydantic import BaseModel, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).parent.parent.parent
@@ -79,10 +79,10 @@ class Settings(BaseSettings):
 
     celery_broker_url: str = "amqp://guest:guest@localhost:5672//"
 
-    sender_email: str  = Field(validation_alias="SENDER_EMAIL")
+    sender_email: str = Field(validation_alias="SENDER_EMAIL")
     smtp_password: SecretStr = Field(validation_alias="SMTP_PASSWORD")
     smtp_hostname: str = "smtp.gmail.com"
     smtp_port: int = 587
 
 
-settings = Settings() # type: ignore[call-arg]
+settings = Settings()  # type: ignore[call-arg]

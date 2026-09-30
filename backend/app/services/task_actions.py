@@ -1,3 +1,5 @@
+from sqlalchemy.orm import Session
+
 from app.core.errors import AppError
 from app.models.project import Project
 from app.models.sprint import Sprint, SprintStatus
@@ -9,7 +11,6 @@ from app.repositories.task import TaskRepository
 from app.schemas.review_comments import ReviewCommentCreate
 from app.schemas.task import TaskCreate, TaskUpdate
 from app.services.project_membership import can_manage_sprints
-from sqlalchemy.orm import Session
 
 
 def _ensure_sprint_open(sprint: Sprint) -> None:

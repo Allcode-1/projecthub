@@ -14,7 +14,11 @@ logger = logging.getLogger("app.celery")
 celery_app = Celery(
     "project_hub",
     broker=settings.celery_broker_url,
-    include=["app.jobs.sprint_lifecycle", "app.jobs.email", "app.jobs.outbox_dispatcher"],
+    include=[
+        "app.jobs.sprint_lifecycle",
+        "app.jobs.email",
+        "app.jobs.outbox_dispatcher",
+    ],
 )
 
 celery_app.conf.update(

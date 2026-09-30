@@ -1,5 +1,4 @@
 from app.core.config import settings
-
 from tests.helpers import (
     auth_headers,
     create_project,

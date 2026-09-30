@@ -1,4 +1,7 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 
 from app.cache.project import ProjectCache
 from app.core.errors import AppError
@@ -16,8 +19,6 @@ from app.schemas.project_invite import (
     ProjectInviteUpdate,
 )
 from app.services.project_membership import can_view_project, get_project_access
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
 
 
 def invite_to_project_by_id(
@@ -139,7 +140,7 @@ def accept_invite(
 
     existing_invite.status = ProjectInviteStatus.ACCEPTED
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     new_project_member = ProjectMember(
         project_id=existing_invite.project_id,

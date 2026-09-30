@@ -36,6 +36,7 @@ PaginationDep = Annotated[Pagination, Depends(get_pagination)]
 def register_user_router(payload: UserCreate, db: DbSession) -> User:
     return auth_service.register_user(payload, db)
 
+
 @router.post("/login", response_model=TokenPair)
 def login_user_router(
     request: Request,

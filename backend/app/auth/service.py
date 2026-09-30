@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from jwt.exceptions import InvalidTokenError
 from sqlalchemy.exc import IntegrityError
@@ -128,7 +128,7 @@ def login_user(username: str, password: str, db: Session) -> TokenPair:
 
 def logout_user(refresh_token: str, db: Session) -> dict[str, str]:
     token_payload = _decode_refresh_payload(refresh_token)
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     auth_repo = AuthRepository(db)
     _revoke_active_refresh_session(auth_repo, token_payload["jti"], now)
@@ -140,7 +140,7 @@ def logout_user(refresh_token: str, db: Session) -> dict[str, str]:
 def refresh_tokens(refresh_token: str, db: Session) -> TokenPair:
     token_payload = _decode_refresh_payload(refresh_token)
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     auth_repo = AuthRepository(db)
     session_user_id = _revoke_active_refresh_session(
         auth_repo, token_payload["jti"], now

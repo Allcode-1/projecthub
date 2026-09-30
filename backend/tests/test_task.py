@@ -1,4 +1,6 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
+
+from sqlalchemy import select
 
 from app.models.project import Project
 from app.models.review_comment import ReviewComment
@@ -6,8 +8,6 @@ from app.models.sprint import Sprint
 from app.models.task import Task
 from app.models.user import User
 from app.repositories.task import TaskRepository
-from sqlalchemy import select
-
 from tests.helpers import (
     auth_headers,
     create_project,
@@ -456,7 +456,7 @@ def test_task_claim_is_compare_and_set(db_session):
     db_session.add(project)
     db_session.flush()
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     sprint = Sprint(
         project_id=project.id,
         creator_id=owner.id,

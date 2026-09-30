@@ -1,3 +1,5 @@
+from sqlalchemy.orm import Session
+
 from app.core.errors import AppError
 from app.models.project import Project
 from app.models.review_comment import ReviewComment
@@ -5,7 +7,6 @@ from app.models.sprint import Sprint
 from app.models.user import User
 from app.repositories.review_comment import ReviewCommentRepository
 from app.repositories.task import TaskRepository, TaskStatus
-from sqlalchemy.orm import Session
 
 
 def get_my_review_comments(

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 from app.auth import utils as auth_utils
@@ -24,7 +24,7 @@ def create_refresh_token(
 
     jti = str(uuid4())
 
-    expires_at = datetime.now(timezone.utc) + timedelta(
+    expires_at = datetime.now(UTC) + timedelta(
         days=settings.auth_jwt.refresh_token_expire_days
     )
 

@@ -1,4 +1,6 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
+
+from sqlalchemy.orm import Session
 
 from app.cache.sprint import SprintCache
 from app.core.errors import AppError
@@ -8,7 +10,6 @@ from app.models.user import User
 from app.repositories.sprint import SprintRepository
 from app.schemas.sprint import SprintCreate, SprintUpdate
 from app.services.project_membership import can_manage_sprints
-from sqlalchemy.orm import Session
 
 
 def _ensure_sprint_dates(starts_at: datetime | None, ends_at: datetime | None) -> None:
@@ -26,7 +27,7 @@ def create_sprint(
 
     sprint_repo = SprintRepository(db)
 
-    starts_at = payload.starts_at or datetime.now(timezone.utc)
+    starts_at = payload.starts_at or datetime.now(UTC)
     ends_at = starts_at + timedelta(days=14)
     _ensure_sprint_dates(starts_at, ends_at)
 
@@ -102,7 +103,7 @@ def start_sprint(
     if sprint.status != SprintStatus.PLANNED:
         raise AppError(409, "Only planned sprint can be started")
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     if sprint.ends_at is not None and sprint.ends_at <= now:
         raise AppError(409, "Sprint already ended")
@@ -128,7 +129,7 @@ def close_sprint(
     if sprint.status != SprintStatus.ACTIVE:
         raise AppError(409, "Only active sprint can be closed")
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
 
     sprint.closed_at = now
     sprint.status = SprintStatus.CLOSED

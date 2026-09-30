@@ -17,7 +17,7 @@ def _publish_event(event: OutboxEvent) -> None:
         raise ValueError(f"Unsupported outbox event type: {event.event_type}")
 
     payload: dict[str, Any] = event.payload
-    send_email.delay(
+    send_email.delay(  # pyright: ignore
         payload["email"],
         "Welcome!",
         "welcome.html",

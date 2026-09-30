@@ -16,3 +16,6 @@ plan.txt
 certs/
 
 .vscode
+
+# frontend
+frontend/

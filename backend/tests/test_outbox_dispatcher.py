@@ -21,7 +21,9 @@ def test_dispatch_pending_events_publishes_welcome_email_and_marks_event_sent(
     )
 
 
-def test_dispatch_pending_events_skips_already_sent_events(db_session, email_task_delay):
+def test_dispatch_pending_events_skips_already_sent_events(
+    db_session, email_task_delay
+):
     outbox_repo = OutboxRepository(db_session)
     event = outbox_repo.add_event(
         "user.registered",

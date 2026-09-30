@@ -1,11 +1,12 @@
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
 from app.cache.project import ProjectCache
 from app.core.errors import AppError
 from app.models.project import Project
 from app.models.project_member import ProjectMember
 from app.models.task import Task, TaskStatus
 from app.models.user import User
-from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 
 def leave_project(
